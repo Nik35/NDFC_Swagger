@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ndfc_sot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ndfc_sot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      NDFC_SOT_DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/ndfc_sot"
+      NDFC_SOT_API_KEY: "dev-api-key-change-in-production"
+      NDFC_SOT_DEBUG: "false"
+      NDFC_SOT_LOG_LEVEL: "INFO"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -1,0 +1,185 @@
+vxlan:
+  fabric:
+    name: DC-FABRIC-1
+    type: VXLAN_EVPN
+  topology:
+    switches:
+    - name: LEAF-1
+      serial_number: SAL12345678
+      role: leaf
+      routing_loopback_id: 0
+      vtep_loopback_id: 1
+      routing_loopback_ipv4: 10.250.0.1
+      vtep_loopback_ipv4: 10.251.0.1
+      mgmt_ip: 192.168.1.10
+      mgmt_gw: 192.168.1.1
+      system_nve_id: 1
+      interfaces:
+      - name: Ethernet1/10
+        type: access
+        description: Server port for testing
+        admin_state: true
+        mtu: 9216
+        speed: 10gb
+        duplex: full
+        access_vlan: 100
+        spanning_tree_portfast: true
+      - name: Ethernet1/20
+        type: access
+        description: Server port for testing
+        admin_state: true
+        mtu: 9216
+        speed: 10gb
+        duplex: full
+        access_vlan: 100
+        spanning_tree_portfast: true
+      - name: Ethernet1/30
+        type: access
+        description: Server port 2
+        admin_state: true
+        mtu: 9216
+        speed: 10gb
+        duplex: full
+        access_vlan: 101
+        spanning_tree_portfast: true
+      - name: Ethernet1/40
+        type: access
+        description: Server port 4
+        admin_state: true
+        mtu: 9216
+        speed: 10gb
+        duplex: full
+        access_vlan: 102
+        spanning_tree_portfast: true
+    - name: LEAF-2
+      serial_number: SAL0000025
+      role: leaf
+      routing_loopback_id: 0
+      vtep_loopback_id: 1
+      routing_loopback_ipv4: 10.250.1.1
+      vtep_loopback_ipv4: 10.251.1.1
+      mgmt_ip: 192.168.10.10
+      mgmt_gw: 192.168.10.1
+      system_nve_id: 1
+      interfaces:
+      - name: Ethernet1/20
+        type: access
+        description: 'Server port INTERNAL '
+        admin_state: true
+        mtu: 9216
+        speed: 25gb
+        duplex: full
+        access_vlan: 100
+        spanning_tree_portfast: true
+    - name: spine-ewrewrwrwer_101
+      serial_number: SAL00000202
+      role: spine
+      routing_loopback_id: 0
+      vtep_loopback_id: 1
+      routing_loopback_ipv4: 10.250.20.1
+      vtep_loopback_ipv4: 10.251.20.1
+      mgmt_ip: 192.168.20.10
+      mgmt_gw: 192.168.20.1
+      system_nve_id: 1
+  overlay:
+    vrfs:
+    - name: VRF_PROD
+      vrf_id: 50000
+      vlan_id: 2000
+      route_target_both: false
+      ipv6_link_local_flag: true
+      max_bgp_paths: 1
+      max_ibgp_paths: 2
+      advertise_host_routes: false
+      advertise_default_route: true
+      enable_trm: false
+      rp_external: false
+      netflow_enable: false
+      no_rp: false
+      vrf_attach_group: VRF_PROD_attach
+    vrf_attach_groups:
+    - name: VRF_PROD_attach
+      switches:
+      - hostname: LEAF-1
+    networks:
+    - name: NET_WEB_100
+      network_id: 30001
+      vlan_id: 100
+      vrf_name: VRF_PROD
+      gateway_ipv4: 10.1.100.1/24
+      suppress_arp: true
+      enable_ir: false
+      mtu: 9216
+      routing_tag: 12345
+      is_l2_only: false
+      enable_trm: false
+      netflow_enable: false
+      attach_group_name: NET_WEB_100_attach
+    - name: NET_WEB_100_001
+      network_id: 30002
+      vlan_id: 100
+      vrf_name: VRF_PROD
+      gateway_ipv4: 10.1.100.1/24
+      suppress_arp: true
+      enable_ir: false
+      mtu: 9216
+      routing_tag: 12345
+      is_l2_only: false
+      enable_trm: false
+      netflow_enable: false
+      attach_group_name: NET_WEB_100_001_attach
+    - name: NET_WEB_INTERNAL_200
+      network_id: 30001
+      vlan_id: 100
+      vrf_name: VRF_PROD
+      gateway_ipv4: 10.1.100.1/24
+      suppress_arp: true
+      enable_ir: false
+      mtu: 9216
+      routing_tag: 12345
+      is_l2_only: false
+      enable_trm: false
+      netflow_enable: false
+      attach_group_name: NET_WEB_INTERNAL_200_attach
+    - name: NET_WEB_INTERNAL_EXTERNAL_202
+      network_id: 30001
+      vlan_id: 100
+      vrf_name: VRF_PROD
+      gateway_ipv4: 10.1.100.1/24
+      suppress_arp: true
+      enable_ir: false
+      mtu: 9216
+      routing_tag: 12345
+      is_l2_only: false
+      enable_trm: false
+      netflow_enable: false
+      attach_group_name: NET_WEB_INTERNAL_EXTERNAL_202_attach
+    network_attach_groups:
+    - name: NET_WEB_100_attach
+      switches:
+      - hostname: LEAF-1
+        ports:
+        - Ethernet1/10
+    - name: NET_WEB_100_001_attach
+      switches:
+      - hostname: LEAF-1
+        ports:
+        - Ethernet1/10
+    - name: NET_WEB_INTERNAL_200_attach
+      switches:
+      - hostname: LEAF-2
+        ports:
+        - Ethernet1/10
+    - name: NET_WEB_INTERNAL_EXTERNAL_202_attach
+      switches:
+      - hostname: spine-ewrewrwrwer_101
+        ports:
+        - Ethernet1/20
+  policy:
+    policies:
+    - switch_name: LEAF-1
+      template_name: switch_freeform
+      priority: 500
+      config: 'ntp server 10.1.1.1
+
+        ntp server 10.1.1.2'

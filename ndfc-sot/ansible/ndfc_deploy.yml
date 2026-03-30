@@ -1,0 +1,8 @@
+---
+- name: Deploy NDFC Fabric via NAC-DC
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - cisco.dcnm.dcnm_rest
+  vars_files:
+    - "host_vars/{{ fabric_name }}.yaml"
